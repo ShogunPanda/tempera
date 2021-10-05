@@ -8,8 +8,8 @@ Tempera allows to add coloring to terminal in a really easy way.
 
 ### Colorize strings
 
-To colorize strings, simply use the [colorize]() function, passing a vector of styles you want to apply.
-The list of supported color names correspondes to the keys of [CODES]() variable.
+To colorize strings, simply use the [colorize](https://docs.rs/tempera/latest/tempera/fn.colorize.html) function, passing a vector of styles you want to apply.
+The list of supported color names correspondes to the keys of [CODES](https://docs.rs/tempera/latest/tempera/struct.CODES.html) variable.
 
 ```rust
 use tempera::*;
@@ -22,7 +22,7 @@ fn main() {
 
 ### Colorize templates
 
-To colorize a template using a tagged template syntax, simply use the [colorize_template]() function.
+To colorize a template using a tagged template syntax, simply use the [colorize_template](https://docs.rs/tempera/latest/tempera/fn.colorize_template.html) function.
 
 ```rust
 use tempera::*;
@@ -40,7 +40,7 @@ If you want to discard styles to be restored, use the `{reset}` token.
 
 ### Setting custom styles
 
-If you want to define custom styles, use the [add_style]() function.
+If you want to define custom styles, use the [add_style](https://docs.rs/tempera/latest/tempera/fn.add_style.html) function.
 
 ```rust
 use tempera::*;
@@ -71,7 +71,7 @@ ANSI, RGB, and HEX can be used in style definitions and templates as well.
 
 ## API Documentation
 
-The API documentation can be found [here]().
+The API documentation can be found [here](https://docs.rs/tempera/).
 
 ## Contributing to tempera
 
