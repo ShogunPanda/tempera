@@ -111,20 +111,14 @@ fn convert_rgb_color(spec: Captures, base: u8) -> (String, String) {
 /// Converts a style to a sequence of valid ANSI escape codes.
 pub fn style_to_ansi(style: &str) -> (String, String) {
   if let Some(spec) = ANSI_MATCHER.captures(style) {
-    if spec.len() > 1 {
-      return convert_ansi_color(spec);
-    }
+    convert_ansi_color(spec)
   } else if let Some(spec) = RGB_MATCHER.captures(style) {
-    if spec.len() > 1 {
-      return convert_rgb_color(spec, 10);
-    }
+    convert_rgb_color(spec, 10)
   } else if let Some(spec) = HEX_MATCHER.captures(style) {
-    if spec.len() > 1 {
-      return convert_rgb_color(spec, 16);
-    }
+    convert_rgb_color(spec, 16)
   } else if let Some(spec) = crate::codes::CODES.get(style) {
-    return (escape_ansi(&[spec.open]), escape_ansi(&[spec.close]));
+    (escape_ansi(&[spec.open]), escape_ansi(&[spec.close]))
+  } else {
+    (String::new(), String::new())
   }
-
-  (String::new(), String::new())
 }

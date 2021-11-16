@@ -31,12 +31,8 @@ fn remove_styles(replacement: &mut String, styles: &mut Vec<Vec<String>>) {
   // Pop a the style from the list of the applied ones
   let to_remove = styles.pop();
 
-  if to_remove.is_none() {
-    return;
-  }
-
   // Unset the style by applying the closing ANSI codes
-  for id in to_remove.unwrap() {
+  for id in to_remove.unwrap_or(vec![]) {
     replacement.push_str(style_to_ansi(&id).1.as_str());
   }
 
@@ -57,10 +53,6 @@ pub fn colorize_template(content: &str) -> String {
   let mut modified = PARSER.replace_all(content, |captures: &Captures| {
     // Get the styles
     let ids = captures.name("styleSingle").or(captures.name("styleDouble"));
-
-    if ids.is_none() {
-      return String::from(captures.get(0).unwrap().as_str());
-    }
 
     let mut replacement = String::from("");
     let mut current: Vec<String> = vec![];

@@ -1,6 +1,14 @@
 use tempera::colorize_template;
 
 #[test]
+fn does_not_fail_when_empty() {
+  assert_eq!(
+    colorize_template("ABC"),
+    "ABC"
+  );
+}
+
+#[test]
 fn applies_known_styles_and_closes_them_in_the_right_order() {
   assert_eq!(
     colorize_template("{red}ABC{green}CDE{-}EFG{-}HIJ"),

@@ -1,5 +1,10 @@
 # tempera
 
+[![Version](https://img.shields.io/crates/v/tempera.svg)](https://crates.io/crates/tempera)
+[![Dependencies](https://img.shields.io/librariesio/release/cargo/tempera)](https://libraries.io/cargo/tempera)
+[![Build](https://github.com/ShogunPanda/tempera/workflows/CI/badge.svg)](https://github.com/ShogunPanda/tempera/actions?query=workflow%3ACI)
+[![Coverage](https://img.shields.io/codecov/c/gh/ShogunPanda/tempera?token=wUfs01bBGb)](https://codecov.io/gh/ShogunPanda/tempera)
+
 Template based terminal coloring made really easy.
 
 ## Usage
