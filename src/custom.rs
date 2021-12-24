@@ -19,7 +19,7 @@ pub enum CustomStyleError {
 /// Adds a new custom style.
 pub fn add_style(name: &str, styles: &[&str]) -> Result<(), CustomStyleError> {
   // Check syntax
-  if INVALID_STYLE_MATCHER.is_match(&name) {
+  if INVALID_STYLE_MATCHER.is_match(name) {
     return Err(CustomStyleError::InvalidSyntax);
   }
 

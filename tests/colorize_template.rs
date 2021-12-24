@@ -2,10 +2,7 @@ use tempera::colorize_template;
 
 #[test]
 fn does_not_fail_when_empty() {
-  assert_eq!(
-    colorize_template("ABC"),
-    "ABC"
-  );
+  assert_eq!(colorize_template("ABC"), "ABC");
 }
 
 #[test]

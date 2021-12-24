@@ -20,7 +20,7 @@ pub fn colorize(content: &str, styles: &[&str]) -> String {
   // For each requested style
   for style in styles {
     // Split styles by space
-    let tokens: Vec<&str> = style.split(" ").collect();
+    let tokens: Vec<&str> = style.split(' ').collect();
 
     // Resolve custom styles
     for resolved in custom::resolve_styles(&tokens) {
@@ -28,7 +28,7 @@ pub fn colorize(content: &str, styles: &[&str]) -> String {
       let (open, close) = styling::style_to_ansi(&resolved);
 
       // If at least one of the codes are valid, prepend and append to the string
-      if open != "" && close != "" {
+      if !open.is_empty() && !close.is_empty() {
         header.push_str(open.as_str());
         footer.insert_str(0, close.as_str());
       }

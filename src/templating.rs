@@ -11,7 +11,7 @@ lazy_static! {
   static ref SPLITTER: Regex = Regex::new(r"[\|\s]+").unwrap();
 }
 
-static RESET: &'static str = "\u{1b}[0m";
+static RESET: &str = "\u{1b}[0m";
 
 fn add_styles(replacement: &mut String, styles: &mut Vec<String>, id: &str) -> bool {
   let open = style_to_ansi(id);
@@ -32,14 +32,14 @@ fn remove_styles(replacement: &mut String, styles: &mut Vec<Vec<String>>) {
   let to_remove = styles.pop();
 
   // Unset the style by applying the closing ANSI codes
-  for id in to_remove.unwrap_or(vec![]) {
+  for id in to_remove.unwrap_or_default() {
     replacement.push_str(style_to_ansi(&id).1.as_str());
   }
 
   // If the applied styles stack is still non-empty, it means we have to restore the previous style
   if !styles.is_empty() {
     for id in styles.last().unwrap() {
-      replacement.push_str(style_to_ansi(&id).0.as_str());
+      replacement.push_str(style_to_ansi(id).0.as_str());
     }
   }
 }
@@ -52,7 +52,7 @@ pub fn colorize_template(content: &str) -> String {
   // For each tag in the string
   let mut modified = PARSER.replace_all(content, |captures: &Captures| {
     // Get the styles
-    let ids = captures.name("styleSingle").or(captures.name("styleDouble"));
+    let ids = captures.name("styleSingle").or_else(|| captures.name("styleDouble"));
 
     let mut replacement = String::from("");
     let mut current: Vec<String> = vec![];
@@ -97,7 +97,7 @@ pub fn colorize_template(content: &str) -> String {
       applied.push(current);
     }
 
-    return replacement;
+    replacement
   });
 
   if replaced {
