@@ -6,9 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Restore cached dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cargo
           key: cargo-${{ hashFiles('**/Cargo.toml') }}-${{ hashFiles('**/Cargo.lock') }}
@@ -44,7 +44,7 @@ jobs:
       - name: Generate coverage
         run: ~/.cargo/bin/grcov . --binary-path ./target/debug/ -s . -t lcov --ignore-not-existing --keep-only "src/*.rs" --ignore "src/main.rs" -o ./coverage/coverage.lcov --excl-line "^(#\[derive\(Debug\))" -p src
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
           file: ./coverage/coverage.lcov
           token: ${{ secrets.CODECOV_TOKEN }}
