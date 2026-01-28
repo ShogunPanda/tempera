@@ -1,52 +1,54 @@
 //! Module that allows define and use custom styles.
 
-use lazy_static::lazy_static;
+use crate::errors::Error;
 use regex::Regex;
 use std::collections::HashMap;
-use std::sync::Mutex;
+use std::sync::{LazyLock, RwLock};
 
-lazy_static! {
-  static ref INVALID_STYLE_MATCHER: Regex = Regex::new(r"(?i)[\s\{\}]").unwrap();
-  static ref CUSTOM: Mutex<HashMap<String, Vec<String>>> = Mutex::new(HashMap::new());
-}
+static INVALID_STYLE_MATCHER: LazyLock<Regex> =
+  LazyLock::new(|| Regex::new(r"(?i)[\s\{\}]").expect("Invalid style matcher regex"));
 
-/// An error that occurred when adding a new custom style.
-pub enum CustomStyleError {
-  /// Error raised when the style name contains spaces or curly braces.
-  InvalidSyntax,
-}
+// This must be public due to tests.
+pub static CUSTOM: LazyLock<RwLock<HashMap<String, Vec<String>>>> = LazyLock::new(|| RwLock::new(HashMap::new()));
 
 /// Adds a new custom style.
-pub fn add_style(name: &str, styles: &[&str]) -> Result<(), CustomStyleError> {
+pub fn add_style(name: &str, styles: &[&str]) -> Result<(), Error> {
   // Check syntax
   if INVALID_STYLE_MATCHER.is_match(name) {
-    return Err(CustomStyleError::InvalidSyntax);
+    return Err(Error::InvalidSyntax);
   }
 
+  let mut custom = CUSTOM.write().map_err(|_| Error::LockPoisoned)?;
+
   // Add the style and return
-  CUSTOM
-    .lock()
-    .unwrap()
-    .insert(name.to_string(), styles.iter().map(|c| c.to_string()).collect());
+  custom.insert(
+    name.to_lowercase().to_string(),
+    styles.iter().map(|c| c.to_string()).collect(),
+  );
 
   Ok(())
 }
 
 /// Deletes one or more custom styles.
-pub fn delete_styles(names: &[&str]) {
+pub fn delete_styles(names: &[&str]) -> Result<(), Error> {
+  let mut custom = CUSTOM.write().map_err(|_| Error::LockPoisoned)?;
+
   for name in names.iter() {
-    CUSTOM.lock().unwrap().remove(&name.to_string());
+    custom.remove(&name.to_lowercase().to_string());
   }
+
+  Ok(())
 }
 
 /// Resolve all custom styles.
-pub fn resolve_styles(names: &[&str]) -> Vec<String> {
+pub fn resolve_styles(names: &[&str]) -> Result<Vec<String>, Error> {
+  let custom = CUSTOM.read().map_err(|_| Error::LockPoisoned)?;
   let mut resolved: Vec<String> = vec![];
 
   // For each name
   for name in names.iter() {
     // Attempt to find it
-    match CUSTOM.lock().unwrap().get(&name.to_string()) {
+    match custom.get(&name.to_lowercase().to_string()) {
       // Custom style found, add it
       Some(styles) => {
         resolved.extend_from_slice(styles);
@@ -56,5 +58,5 @@ pub fn resolve_styles(names: &[&str]) -> Vec<String> {
     }
   }
 
-  resolved
+  Ok(resolved)
 }

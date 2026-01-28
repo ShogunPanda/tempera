@@ -1,0 +1,37 @@
+[config]
+  skip_core_tasks = true
+
+[tasks.default]
+  dependencies = ["build"]
+
+[tasks.build]
+  command = "cargo"
+  args    = ["build"]
+
+[tasks.format]
+  command = "cargo"
+  args    = ["fmt"]
+
+[tasks.lint]
+  command = "cargo"
+  args    = ["clippy"]
+
+[tasks.coverage]
+  command = "cargo"
+  args = [
+    "llvm-cov",
+    "--summary-only",
+    "--branch",
+    "--ignore-filename-regex=main.rs",
+
+  ]
+
+[tasks."coverage:html"]
+  command = "cargo"
+  args = [
+    "llvm-cov",
+    "--html",
+    "--output-dir=coverage",
+    "--branch",
+    "--ignore-filename-regex=main.rs",
+  ]

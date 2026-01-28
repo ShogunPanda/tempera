@@ -1,16 +1,16 @@
 //! Template based terminal coloring made really easy.
 
-extern crate lazy_static;
-
 mod codes;
-mod custom;
+pub mod custom; // This must be public due to tests
+mod errors;
 mod styling;
 mod templating;
-
+mod traits;
 pub use codes::CODES;
-pub use custom::{add_style, delete_styles, resolve_styles, CustomStyleError};
-pub use styling::ColorError;
+pub use custom::{add_style, delete_styles, resolve_styles};
+pub use errors::Error;
 pub use templating::{clean_template, colorize_template};
+pub use traits::Colorize;
 
 /// Colorize a string using given styles.
 pub fn colorize(content: &str, styles: &[&str]) -> String {
@@ -23,14 +23,17 @@ pub fn colorize(content: &str, styles: &[&str]) -> String {
     let tokens: Vec<&str> = style.split(' ').collect();
 
     // Resolve custom styles
-    for resolved in custom::resolve_styles(&tokens) {
-      // Translate style to ANSI escape codes
-      let (open, close) = styling::style_to_ansi(&resolved);
+    if let Ok(resolved_styles) = resolve_styles(&tokens) {
+      for resolved in resolved_styles {
+        // Translate style to ANSI escape codes
+        let (open, close) = styling::style_to_ansi(&resolved);
 
-      // If at least one of the codes are valid, prepend and append to the string
-      if !open.is_empty() && !close.is_empty() {
-        header.push_str(open.as_str());
-        footer.insert_str(0, close.as_str());
+        // If the codes are valid, prepend and append to the string
+        // Note: style_to_ansi always returns both empty or both non-empty
+        if !open.is_empty() {
+          header.push_str(open.as_str());
+          footer.insert_str(0, close.as_str());
+        }
       }
     }
   }

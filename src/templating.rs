@@ -2,14 +2,14 @@
 
 use crate::custom::resolve_styles;
 use crate::styling::style_to_ansi;
-use lazy_static::lazy_static;
 use regex::{Captures, Regex};
+use std::sync::LazyLock;
 
-lazy_static! {
-  static ref PARSER: Regex =
-    Regex::new(r"(?i)(?:\{(?P<styleSingle>[^\{\}]+)\})|(?:\{\{(?P<styleDouble>[^\{\}]+)\}\})").unwrap();
-  static ref SPLITTER: Regex = Regex::new(r"[\|\s]+").unwrap();
-}
+static PARSER: LazyLock<Regex> = LazyLock::new(|| {
+  Regex::new(r"(?i)(?:\{(?P<styleSingle>[^\{\}]+)\})|(?:\{\{(?P<styleDouble>[^\{\}]+)\}\})")
+    .expect("Invalid template parser regex")
+});
+static SPLITTER: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"[\|\s]+").expect("Invalid template splitter regex"));
 
 static RESET: &str = "\u{1b}[0m";
 
@@ -37,8 +37,8 @@ fn remove_styles(replacement: &mut String, styles: &mut Vec<Vec<String>>) {
   }
 
   // If the applied styles stack is still non-empty, it means we have to restore the previous style
-  if !styles.is_empty() {
-    for id in styles.last().unwrap() {
+  if let Some(lasts) = styles.last() {
+    for id in lasts {
       replacement.push_str(style_to_ansi(id).0.as_str());
     }
   }
@@ -51,41 +51,53 @@ pub fn colorize_template(content: &str) -> String {
 
   // For each tag in the string
   let mut modified = PARSER.replace_all(content, |captures: &Captures| {
-    // Get the styles
-    let ids = captures.name("styleSingle").or_else(|| captures.name("styleDouble"));
-
     let mut replacement = String::from("");
     let mut current: Vec<String> = vec![];
 
-    // Split ids
-    for raw_id in resolve_styles(&SPLITTER.split(ids.unwrap().as_str()).collect::<Vec<&str>>()).iter() {
-      let id = raw_id.trim();
+    // Get the styles - the regex guarantees one of these groups will match
+    let ids = captures
+      .name("styleSingle")
+      .or_else(|| captures.name("styleDouble"))
+      .expect("Regex should always capture either styleSingle or styleDouble");
 
-      match id {
-        "-" => {
-          // Close all styles applied so far
-          if !applied.is_empty() {
-            if applied.last().unwrap().get(0).unwrap() == "ignore" {
-              applied.pop();
-            } else {
-              remove_styles(&mut replacement, &mut applied);
+    if let Ok(resolved) = resolve_styles(
+      &SPLITTER
+        .split(ids.as_str())
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+        .collect::<Vec<&str>>(),
+    ) {
+      for raw_id in resolved.iter() {
+        let id = raw_id.trim();
+
+        match id {
+          "-" => {
+            // Close all styles applied so far
+            if let Some(last) = applied.last() {
+              // Note: We never push empty vectors to applied, so first() always exists
+              let first = last.first().expect("Applied styles vector should never be empty");
+              if first == "ignore" {
+                applied.pop();
+              } else {
+                remove_styles(&mut replacement, &mut applied);
+              }
             }
+
+            // Do not process anything else in this style
+            break;
           }
+          "reset" => {
+            // Reset all styles, it means drop all the styles applied so far so do not unset anything
+            applied.clear();
 
-          // Do not process anything else in this style
-          break;
-        }
-        "reset" => {
-          // Reset all styles, it means drop all the styles applied so far so do not unset anything
-          applied.clear();
-
-          // Do not process anything else in this style
-          break;
-        }
-        _ => {
-          // Adding a new style
-          if add_styles(&mut replacement, &mut current, id) {
-            replaced = true
+            // Do not process anything else in this style
+            break;
+          }
+          _ => {
+            // Adding a new style
+            if add_styles(&mut replacement, &mut current, id) {
+              replaced = true
+            }
           }
         }
       }

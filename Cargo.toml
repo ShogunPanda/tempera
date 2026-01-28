@@ -1,15 +1,19 @@
 [package]
-name = "tempera"
-version = "0.1.1"
-edition = "2018"
-description = "Template based terminal coloring made really easy."
-documentation = "https://docs.rs/tempera"
-homepage = "https://sw.cowtech.it/tempera"
-repository = "https://github.com/ShogunPanda/tempera"
-license = "ISC"
-keywords = ["terminal", "colors", "ansi"]
-categories = ["command-line-utilities", "command-line-interface", "template-engine"]
+  name = "tempera"
+  version = "0.2.0"
+  edition = "2024"
+  description = "Template based terminal coloring made really easy."
+  documentation = "https://docs.rs/tempera"
+  homepage = "https://sw.cowtech.it/tempera"
+  repository = "https://github.com/ShogunPanda/tempera"
+  license = "ISC"
+  keywords = ["terminal", "colors", "ansi"]
+  categories = [
+    "command-line-utilities",
+    "command-line-interface",
+    "template-engine",
+  ]
 
 [dependencies]
-lazy_static = "1.4.0"
-regex = "1.5.4"
+  regex     = "1.12.2"
+  thiserror = "2.0.18"
