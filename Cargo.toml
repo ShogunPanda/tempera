@@ -1,6 +1,6 @@
 [package]
   name = "tempera"
-  version = "0.2.0"
+  version = "0.3.0"
   edition = "2024"
   description = "Template based terminal coloring made really easy."
   documentation = "https://docs.rs/tempera"
