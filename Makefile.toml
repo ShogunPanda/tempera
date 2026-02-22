@@ -23,8 +23,8 @@
     "--summary-only",
     "--branch",
     "--ignore-filename-regex=main.rs",
-
   ]
+  env = { RUSTUP_TOOLCHAIN = "nightly" }
 
 [tasks."coverage:html"]
   command = "cargo"
@@ -35,3 +35,4 @@
     "--branch",
     "--ignore-filename-regex=main.rs",
   ]
+  env = { RUSTUP_TOOLCHAIN = "nightly" }
