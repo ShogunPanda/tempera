@@ -1,0 +1,59 @@
+name: Publish release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "The version number to tag and release"
+        required: true
+        type: string
+      prerelease:
+        description: "Release as pre-release"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  release:
+    name: Release
+    environment: main
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Setup cargo OIDC
+        uses: rust-lang/crates-io-auth-action@v1
+        id: auth
+      - name: Configure git
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+      - name: Create release
+        run: |
+          curl -o /tmp/cambi -sSL https://github.com/ShogunPanda/cambi/releases/latest/download/cambi-linux
+          chmod +x /tmp/cambi
+          /tmp/cambi changelog ${{ inputs.version }}
+          /tmp/cambi update ${{ inputs.version }}
+          /tmp/cambi release -n > /tmp/release-notes.txt
+      - name: Publish on crates.io
+        run: |
+          cargo generate-lockfile
+          git add Cargo.toml Cargo.lock CHANGELOG.md
+          git commit -m "chore: Updated version."
+          git tag -f "v${{ inputs.version }}"
+          cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+      - name: Publish on GitHub
+        run: |
+          git push origin && git push origin -f --tags
+          gh release create "v${{ inputs.version }}" -t "${{ inputs.version }}" ${{ github.event.inputs.prerelease == 'true' && '--prerelease' || '' }} -F /tmp/release-notes.txt
+        env:
+          GH_TOKEN: ${{ github.token }}
