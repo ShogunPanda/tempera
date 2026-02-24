@@ -1,54 +1,36 @@
----
-name: CI
-on: [push, pull_request, workflow_dispatch]
+name: Run Tests
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
 jobs:
   ci:
+    name: Sanity Check
     runs-on: ubuntu-latest
+    env:
+      CARGO_TERM_COLOR: always
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: nightly
+          components: rustfmt, clippy
       - name: Restore cached dependencies
         uses: actions/cache@v3
         with:
-          path: ~/.cargo
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
           key: cargo-${{ hashFiles('**/Cargo.toml') }}-${{ hashFiles('**/Cargo.lock') }}
-      - name: Setup Rust Components
-        uses: actions-rs/toolchain@v1
-        with:
-          components: llvm-tools-preview, rustfmt, clippy
-          toolchain: nightly
-          override: true
-      - name: Install GRCov
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: grcov
-      - name: Build the library
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-      - name: Lint code
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: -- --check
-      - name: Analyze code
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: -- -D warnings
-      - name: Run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-      - name: Generate coverage
-        run: ~/.cargo/bin/grcov . --binary-path ./target/debug/ -s . -t lcov --ignore-not-existing --keep-only "src/*.rs" --ignore "src/main.rs" -o ./coverage/coverage.lcov --excl-line "^(#\[derive\(Debug\))" -p src
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage/coverage.lcov
-          token: ${{ secrets.CODECOV_TOKEN }}
-    env:
-      RUSTC_BOOTSTRAP: 1
-      RUSTFLAGS: -Zinstrument-coverage
-      LLVM_PROFILE_FILE: coverage/tests-%p-%m.profraw
+      - name: Build
+        run: cargo build
+      - name: Format
+        run: cargo fmt --check
+      - name: Lint
+        run: cargo clippy -- -D warnings
+      - name: Test
+        run: cargo test
