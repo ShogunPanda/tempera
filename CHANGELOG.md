@@ -1,3 +1,7 @@
+### 2026-06-06 / 0.4.0
+
+- feat: Use format friendly templating syntax.
+
 ### 2026-01-28 / 0.3.0
 
 - feat: Refactored to be idiomatic Rust.
