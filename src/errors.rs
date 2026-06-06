@@ -3,8 +3,8 @@ use thiserror::Error;
 /// An error that occurred when adding a new custom style.
 #[derive(Error, Debug)]
 pub enum Error {
-  /// Error raised when the style name contains spaces or curly braces.
-  #[error("Custom style cannot contain spaces or curly braces")]
+  /// Error raised when the style name contains spaces or angle brackets.
+  #[error("Custom style cannot contain spaces or angle brackets")]
   InvalidSyntax,
   /// Error raised when the color was not a valid number.
   #[error("Invalid color value")]

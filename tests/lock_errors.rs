@@ -88,5 +88,5 @@ fn colorize_template_becomes_a_noop_when_the_lock_is_poisoned() {
   let _ = handle.join();
   panic::set_hook(old_hook);
 
-  assert_eq!(colorize_template("{red}ABC{-}"), "ABC");
+  assert_eq!(colorize_template("<red>ABC</>"), "ABC");
 }

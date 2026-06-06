@@ -34,15 +34,15 @@ To colorize a template using a tagged template syntax, simply use the [colorize_
 use tempera::*;
 
 fn main() {
-  println!("{}", colorize_template("{red}This is in red, {green underline}this in green underlined{-}, this in red again.");
+  println!("{}", colorize_template("<red>This is in red, <green underline>this in green underlined</>, this in red again."));
 }
 ```
 
-The template recognizes styles between curly braces (use a single or double opening brace to escape them) and the token `{-}` as universal closing tag (which also restores the previous style).
+The template recognizes styles between angle brackets and the token `</>` as universal closing tag (which also restores the previous style).
 
 The closing tag at the end of the string can be omitted, since tempera will append the global reset style (`\u{1b}[0m`) if any style was set.
 
-If you want to discard styles to be restored, use the `{reset}` token.
+If you want to discard styles to be restored, use the `<reset>` token.
 
 ### Setting custom styles
 

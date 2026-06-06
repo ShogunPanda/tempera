@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::sync::{LazyLock, RwLock};
 
 static INVALID_STYLE_MATCHER: LazyLock<Regex> =
-  LazyLock::new(|| Regex::new(r"(?i)[\s\{\}]").expect("Invalid style matcher regex"));
+  LazyLock::new(|| Regex::new(r"(?i)[\s<>]").expect("Invalid style matcher regex"));
 
 // This must be public due to tests.
 pub static CUSTOM: LazyLock<RwLock<HashMap<String, Vec<String>>>> = LazyLock::new(|| RwLock::new(HashMap::new()));
