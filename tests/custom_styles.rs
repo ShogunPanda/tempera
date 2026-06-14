@@ -8,7 +8,7 @@ fn allow_to_define_custom_styles_supported_both_by_colorize_and_colorize_templat
     "\u{1b}[32mABC\u{1b}[39m\u{1b}[0m"
   );
 
-  assert_eq!(add_style("customRed@@", &["red", "underline"]).is_ok(), true);
+  assert!(add_style("customRed@@", &["red", "underline"]).is_ok());
 
   assert_eq!(
     colorize("ABC", &["customRed@@"]),

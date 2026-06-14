@@ -42,10 +42,8 @@ fn spec_to_ansi(spec: &str) -> &crate::codes::ANSICode {
 
 /// Parses a color component.
 fn parse_color_component(raw: &str, base: u8, min: u8, max: u8) -> Result<u8, Error> {
-  // Parse the raw as a number
   match u8::from_str_radix(raw, base.into()) {
     Ok(number) => {
-      // Check bounds
       if number >= min && number <= max {
         Ok(number)
       } else {
@@ -60,7 +58,7 @@ fn parse_color_component(raw: &str, base: u8, min: u8, max: u8) -> Result<u8, Er
 fn parse_color(components: &[&str], base: u8, min: u8, max: u8) -> Result<[u8; 3], Error> {
   let mut parsed: [u8; 3] = [0; 3];
 
-  // Parse each component and push the result to the array
+  // Keep parsing strict: one invalid component makes the whole color invalid.
   for (i, component) in components.iter().enumerate() {
     match parse_color_component(component, base, min, max) {
       Ok(num) => parsed[i] = num,
@@ -71,37 +69,15 @@ fn parse_color(components: &[&str], base: u8, min: u8, max: u8) -> Result<[u8; 3
   Ok(parsed)
 }
 
-/// Converts an ANSI color spec.
-fn convert_ansi_color(spec: Captures) -> (String, String) {
-  let mut open = String::new();
-  let codes = spec_to_ansi(spec.get(0).expect("Missing ANSI capture group").as_str());
-
-  // Simple color code by index, range 16 to 255
-  if spec.get(2).is_none() {
-    // Parse the color and escape it
-    if let Ok(color) = parse_color_component(&spec[1], 10, 16, 255) {
-      open = escape_ansi(&[codes.open, 5, color]);
-    }
-  // Full spec, parse each component and then join them using proper conversion.
-  } else if let Ok([r, g, b]) = parse_color(&[&spec[1], &spec[2], &spec[3]], 10, 0, 5) {
-    open = escape_ansi(&[codes.open, 5, 16 + (36 * r) + (6 * g) + b]);
-  }
-
-  // Return the opening and closing codes
-  (open, escape_ansi(&[codes.close]))
-}
-
 /// Converts an RGB color spec.
 fn convert_rgb_color(spec: Captures, base: u8) -> (String, String) {
   let mut open = String::new();
   let codes = spec_to_ansi(spec.get(0).expect("Missing RGB capture group").as_str());
 
-  // Full spec, parse each component and then join them.
   if let Ok([r, g, b]) = parse_color(&[&spec[1], &spec[2], &spec[3]], base, 0, 255) {
     open = escape_ansi(&[codes.open, 2, r, g, b]);
   }
 
-  // Return the opening and closing codes
   (open, escape_ansi(&[codes.close]))
 }
 
@@ -110,7 +86,19 @@ pub fn style_to_ansi(raw_style: &str) -> (String, String) {
   let style = raw_style.to_lowercase();
 
   if let Some(spec) = ANSI_MATCHER.captures(&style) {
-    convert_ansi_color(spec)
+    let mut open = String::new();
+    let codes = spec_to_ansi(spec.get(0).expect("Missing ANSI capture group").as_str());
+
+    if spec.get(2).is_none() {
+      if let Ok(color) = parse_color_component(&spec[1], 10, 16, 255) {
+        open = escape_ansi(&[codes.open, 5, color]);
+      }
+    } else if let Ok([r, g, b]) = parse_color(&[&spec[1], &spec[2], &spec[3]], 10, 0, 5) {
+      // ANSI 256 colors map RGB cube coordinates to the 16..231 color range.
+      open = escape_ansi(&[codes.open, 5, 16 + (36 * r) + (6 * g) + b]);
+    }
+
+    (open, escape_ansi(&[codes.close]))
   } else if let Some(spec) = RGB_MATCHER.captures(&style) {
     convert_rgb_color(spec, 10)
   } else if let Some(spec) = HEX_MATCHER.captures(&style) {

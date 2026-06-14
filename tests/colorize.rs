@@ -22,10 +22,8 @@ fn ignores_unknown_styles() {
 
 #[test]
 fn test_all_builtin_codes() {
-  // Access all builtin codes to ensure the lazy static is initialized
   let codes = &*CODES;
 
-  // Verify we have all expected codes
   assert!(codes.contains_key("reset"));
   assert!(codes.contains_key("bold"));
   assert!(codes.contains_key("dim"));
@@ -35,7 +33,6 @@ fn test_all_builtin_codes() {
   assert!(codes.contains_key("hidden"));
   assert!(codes.contains_key("strikethrough"));
 
-  // Test all color codes
   let all_styles = [
     "reset",
     "foreground",
@@ -114,8 +111,6 @@ fn validates_ansi_16_colors() {
 
 #[test]
 fn validates_ansi_256_colors() {
-  // Test ANSI color component outside of the valid range (0-5)
-  // When specifying r,g,b values for ANSI, each must be between 0 and 5
   assert_eq!(colorize("ABC", &["ANSI:-1,2,3"]), "ABC");
   assert_eq!(colorize("ABC", &["bg_ANSI:0,0,6"]), "ABC");
   assert_eq!(colorize("ABC", &["ANSI:0,7,0"]), "ABC");
@@ -147,7 +142,6 @@ fn validates_hex_colors_format() {
 
 #[test]
 fn valdates_ansi_16_milions_colors_format() {
-  // Test various malformed RGB patterns
   assert_eq!(colorize("ABC", &["rgb:"]), "ABC");
   assert_eq!(colorize("ABC", &["RGB:100"]), "ABC");
   assert_eq!(colorize("ABC", &["bg_RGB:100,200"]), "ABC");

@@ -2,6 +2,54 @@
 
 use crate::colorize;
 
+pub trait Colorize {
+  fn with_style(&self, style: &str) -> String;
+  fn with_styles(&self, style: &[&str]) -> String;
+
+  fn reset(&self) -> String;
+  fn foreground(&self) -> String;
+  fn background(&self) -> String;
+  fn bold(&self) -> String;
+  fn dim(&self) -> String;
+  fn italic(&self) -> String;
+  fn underline(&self) -> String;
+  fn inverse(&self) -> String;
+  fn hidden(&self) -> String;
+  fn strikethrough(&self) -> String;
+  fn black(&self) -> String;
+  fn red(&self) -> String;
+  fn green(&self) -> String;
+  fn yellow(&self) -> String;
+  fn blue(&self) -> String;
+  fn magenta(&self) -> String;
+  fn cyan(&self) -> String;
+  fn white(&self) -> String;
+  fn gray(&self) -> String;
+  fn bg_black(&self) -> String;
+  fn bg_red(&self) -> String;
+  fn bg_green(&self) -> String;
+  fn bg_yellow(&self) -> String;
+  fn bg_blue(&self) -> String;
+  fn bg_magenta(&self) -> String;
+  fn bg_cyan(&self) -> String;
+  fn bg_white(&self) -> String;
+  fn bright_red(&self) -> String;
+  fn bright_green(&self) -> String;
+  fn bright_yellow(&self) -> String;
+  fn bright_blue(&self) -> String;
+  fn bright_magenta(&self) -> String;
+  fn bright_cyan(&self) -> String;
+  fn bright_white(&self) -> String;
+  fn bright_bg_black(&self) -> String;
+  fn bright_bg_red(&self) -> String;
+  fn bright_bg_green(&self) -> String;
+  fn bright_bg_yellow(&self) -> String;
+  fn bright_bg_blue(&self) -> String;
+  fn bright_bg_magenta(&self) -> String;
+  fn bright_bg_cyan(&self) -> String;
+  fn bright_bg_white(&self) -> String;
+}
+
 macro_rules! impl_colorize {
   ($type:ty) => {
     impl Colorize for $type {
@@ -182,59 +230,6 @@ macro_rules! impl_colorize {
       }
     }
   };
-}
-
-pub trait Colorize {
-  fn with_style(&self, style: &str) -> String;
-  fn with_styles(&self, style: &[&str]) -> String;
-
-  fn reset(&self) -> String;
-  fn foreground(&self) -> String;
-  fn background(&self) -> String;
-  // Style
-  fn bold(&self) -> String;
-  fn dim(&self) -> String;
-  fn italic(&self) -> String;
-  fn underline(&self) -> String;
-  fn inverse(&self) -> String;
-  fn hidden(&self) -> String;
-  fn strikethrough(&self) -> String;
-  // Foreground colors
-  fn black(&self) -> String;
-  fn red(&self) -> String;
-  fn green(&self) -> String;
-  fn yellow(&self) -> String;
-  fn blue(&self) -> String;
-  fn magenta(&self) -> String;
-  fn cyan(&self) -> String;
-  fn white(&self) -> String;
-  fn gray(&self) -> String;
-  // Background colors
-  fn bg_black(&self) -> String;
-  fn bg_red(&self) -> String;
-  fn bg_green(&self) -> String;
-  fn bg_yellow(&self) -> String;
-  fn bg_blue(&self) -> String;
-  fn bg_magenta(&self) -> String;
-  fn bg_cyan(&self) -> String;
-  fn bg_white(&self) -> String;
-  // Bright foreground colors
-  fn bright_red(&self) -> String;
-  fn bright_green(&self) -> String;
-  fn bright_yellow(&self) -> String;
-  fn bright_blue(&self) -> String;
-  fn bright_magenta(&self) -> String;
-  fn bright_cyan(&self) -> String;
-  fn bright_white(&self) -> String;
-  // Bright background colors
-  fn bright_bg_black(&self) -> String;
-  fn bright_bg_red(&self) -> String;
-  fn bright_bg_green(&self) -> String;
-  fn bright_bg_yellow(&self) -> String;
-  fn bright_bg_blue(&self) -> String;
-  fn bright_bg_magenta(&self) -> String;
-  fn bright_bg_cyan(&self) -> String;
-  fn bright_bg_white(&self) -> String;
 }
 
 impl_colorize!(str);

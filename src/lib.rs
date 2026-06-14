@@ -1,7 +1,7 @@
 //! Template based terminal coloring made really easy.
 
 mod codes;
-pub mod custom; // This must be public due to tests
+pub mod custom;
 mod errors;
 mod styling;
 mod templating;
@@ -17,20 +17,15 @@ pub fn colorize(content: &str, styles: &[&str]) -> String {
   let mut header = String::new();
   let mut footer = String::new();
 
-  // For each requested style
   for style in styles {
-    // Split styles by space
     let tokens: Vec<&str> = style.split(' ').collect();
 
-    // Resolve custom styles
     if let Ok(resolved_styles) = resolve_styles(&tokens) {
       for resolved in resolved_styles {
-        // Translate style to ANSI escape codes
         let (open, close) = styling::style_to_ansi(&resolved);
 
-        // If the codes are valid, prepend and append to the string
-        // Note: style_to_ansi always returns both empty or both non-empty
         if !open.is_empty() {
+          // Closing codes are prepended so nested styles are closed in reverse order.
           header.push_str(open.as_str());
           footer.insert_str(0, close.as_str());
         }

@@ -189,12 +189,12 @@ fn test_empty_string() {
   let empty = "";
 
   let red_empty = empty.red();
-  assert!(red_empty.len() > 0);
+  assert!(!red_empty.is_empty());
   assert!(red_empty.starts_with("\u{1b}["));
   assert!(red_empty.ends_with("\u{1b}[39m"));
 
   let bold_empty = empty.bold();
-  assert!(bold_empty.len() > 0);
+  assert!(!bold_empty.is_empty());
   assert!(bold_empty.starts_with("\u{1b}["));
 
   assert!(empty.green().starts_with("\u{1b}["));
